@@ -89,3 +89,87 @@ def create_plots(df, topic_means, output_dir):
     plt.close()
 
 
+def select_file():
+    file_path=filedialog.askopenfilename(
+        title="Выберите Excel-файл с оценками",
+        filetypes =[("Excel files", "*.xlsx *.xls")]
+    )
+    if file_path:
+        label_file.config(text=f"Выбран файл: {os.path.basename(file_path)}")
+        btn_start.config(state=tk.NORMAL)
+        global selected_file_global
+        selected_file_global = file_path
+
+
+def run_analysis():
+    btn_start.config(state=tk.DISABLED)
+    root.config(cursor="watch")
+    root.update()
+
+    report_file = analyze_performance(selected_file_global)
+
+    root.config(cursor="")
+    btn_start.config(state=tk.NORMAL)
+
+    if report_file:
+        messagebox.showinfo(
+            "Успех!",
+            f"Анализ завершен\n\n Создан Excel-отчет:\n{os.path.basename(report_file)}\n\n"
+            f"Сохранён график:\n Аналитика успеваемости.png\n\n Файлы лежат в папке с исходными файлом"
+        )
+
+
+# Инициализация окна
+root = tk.Tk()
+root.title("Модуль анализа успеваемости")
+root.geometry("500x250")
+root.resizable(False, False)
+
+selected_file_global = ""
+
+# Элементы интерфейса
+label_title =tk.Label(
+    root, 
+    text ="Автоматизация анализа оценок", 
+    font =("Arial", 16, "bold"), 
+    pady =10
+    )
+label_title.pack()
+
+label_desc = tk.Label(
+    root,
+    text="Выберите Excel-файл класса. Программа рассчитает средние баллы\n выявит учеников в зоне риска и построит графики для наглядности",
+    font =("Arial", 10), 
+    justify="center",
+    fg="gray"
+)
+label_desc.pack(pady=5)
+
+btn_select = tk.Button(
+    root,
+    text="1. Выбрать файл Excel",
+    command=select_file,
+    font =("Arial", 11)                     
+ )
+btn_select.pack(pady=10)
+
+label_file=tk.Label(
+    root,
+    text="Файл не выбран",
+    font=("Arial", 9, "italic"),
+    fg="darkred"               
+)
+label_file.pack()
+
+btn_start=tk.Button(
+    root,
+    text="2. Запустить анализ",
+    command = run_analysis,
+    state=tk.DISABLED,
+    font =("Arial", 11, "bold"),
+    bg="green",
+    fg="white"
+)
+btn_start.pack(pady=15)
+
+root.mainloop()
